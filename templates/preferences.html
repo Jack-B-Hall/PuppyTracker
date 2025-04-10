@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ app_name }} - User Preferences{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4><i class="fas fa-sliders-h me-2"></i>User Preferences</h4>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('save_preferences') }}" method="post">
+                    <h5 class="border-bottom pb-2 mb-3">Default Recorder</h5>
+                    <div class="form-group">
+                        <label for="default_recorder">Default Recorder</label>
+                        <input type="text" class="form-control" id="default_recorder" name="default_recorder"
+                            value="{{ user_settings.default_recorder }}">
+                        <small class="form-text text-muted">Name of the person who usually records events on this
+                            device</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="additional_recorders">Additional Recorders</label>
+                        <textarea class="form-control" id="additional_recorders" name="additional_recorders"
+                            rows="2">{{ user_settings.additional_recorders|join('\n') if user_settings.additional_recorders else "" }}</textarea>
+                        <small class="form-text text-muted">Add one recorder name per line (these will appear in
+                            dropdown menus)</small>
+                    </div>
+
+                    <h5 class="border-bottom pb-2 mb-3">Food Defaults</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="foodAmount" class="form-label">Default Amount (cups):</label>
+                            <input type="number" step="0.25" class="form-control" id="foodAmount" name="food_amount"
+                                value="{{ user_settings.food.amount }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="foodType" class="form-label">Default Food Type:</label>
+                            <input type="text" class="form-control" id="foodType" name="food_type"
+                                value="{{ user_settings.food.type }}">
+                        </div>
+                    </div>
+
+                    <h5 class="border-bottom pb-2 mb-3">Walk Defaults</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="walkDuration" class="form-label">Default Duration (minutes):</label>
+                            <input type="number" class="form-control" id="walkDuration" name="walk_duration"
+                                value="{{ user_settings.walk.duration }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="walkAutoEnd" class="form-label">Auto-end Walk After (minutes):</label>
+                            <input type="number" class="form-control" id="walkAutoEnd" name="walk_auto_end"
+                                value="{{ user_settings.walk.auto_end_after }}">
+                            <div class="form-text text-muted">Automatically end walk if unfinished after this time</div>
+                        </div>
+                    </div>
+
+                    <h5 class="border-bottom pb-2 mb-3">Sleep Defaults</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="bedTime" class="form-label">Default Bed Time:</label>
+                            <input type="time" class="form-control" id="bedTime" name="bed_time"
+                                value="{{ user_settings.sleep.bedtime }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="wakeTime" class="form-label">Default Wake Time:</label>
+                            <input type="time" class="form-control" id="wakeTime" name="wake_time"
+                                value="{{ user_settings.sleep.wake_time }}">
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Save Preferences</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

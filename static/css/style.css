@@ -1,0 +1,70 @@
+/* Custom styles for Tommo's Tracker */
+
+body {
+    background-color: #f8f9fa;
+    padding-bottom: 20px;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.chart-container {
+    height: 300px;
+    width: 100%;
+}
+
+.btn-lg {
+    border-radius: 12px;
+}
+
+/* Make tables more readable on mobile */
+@media (max-width: 576px) {
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    
+    .btn-lg {
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+}
+
+/* Style for event cards */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    font-weight: 500;
+}
+
+/* Custom tab styles */
+.nav-tabs .nav-link {
+    color: #495057;
+}
+
+.nav-tabs .nav-link.active {
+    color: #007bff;
+    font-weight: 500;
+}
+
+/* Alert styles */
+.alert {
+    border-radius: 0.5rem;
+}
+
+/* Modal styles */
+.modal-header {
+    background-color: #f8f9fa;
+}
+
+/* Form control focus */
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+}

@@ -1,0 +1,7 @@
+flask
+flask-sqlalchemy
+plotly
+pandas
+gunicorn
+python-dotenv
+reportlab

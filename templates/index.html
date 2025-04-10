@@ -1,0 +1,464 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h1 class="card-title">{{ pet.name }}</h1>
+                    <p class="card-text">Age: {{ pet.age_in_months() }} months</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <a href="{{ url_for('add_potty_event') }}" class="btn btn-primary btn-lg btn-block" data-toggle="modal"
+                data-target="#pottyModal">
+                <i class="fas fa-toilet mr-2"></i> Urination
+            </a>
+        </div>
+        <div class="col-md-6 mb-3">
+            <a href="#" class="btn btn-success btn-lg btn-block" data-toggle="modal" data-target="#poopModal">
+                <i class="fas fa-poop mr-2"></i> Defecation
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <a href="#" class="btn btn-warning btn-lg btn-block" data-toggle="modal" data-target="#foodModal">
+                <i class="fas fa-utensils mr-2"></i> Food
+            </a>
+        </div>
+        <div class="col-md-6 mb-3">
+            <a href="#" class="btn btn-info btn-lg btn-block" data-toggle="modal" data-target="#sleepModal">
+                <i class="fas fa-moon mr-2"></i> Sleep
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <a href="#" class="btn btn-danger btn-lg btn-block" data-toggle="modal" data-target="#walkModal">
+                <i class="fas fa-walking mr-2"></i> Walk
+            </a>
+        </div>
+        <div class="col-md-6 mb-3">
+            <a href="{{ url_for('preferences') }}" class="btn btn-secondary btn-lg btn-block">
+                <i class="fas fa-cog mr-2"></i> Settings
+            </a>
+        </div>
+    </div>
+
+    <!-- Urination Modal -->
+    <div class="modal fade" id="pottyModal" tabindex="-1" role="dialog" aria-labelledby="pottyModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="pottyModalLabel">Record Urination</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('add_potty_event') }}" method="post">
+                        <input type="hidden" name="event_type" value="U">
+
+                        <div class="form-group">
+                            <label>Potty Status:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="potty_status" id="on_cue"
+                                    value="on_cue" checked>
+                                <label class="form-check-label" for="on_cue">On Cue</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="potty_status" id="accident"
+                                    value="accident">
+                                <label class="form-check-label" for="accident">Accident</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recorded_by">Recorded By:</label>
+                            <select class="form-control" id="recorded_by" name="recorded_by">
+                                <option value="{{ user_settings.default_recorder }}">{{ user_settings.default_recorder
+                                    }}</option>
+                                {% for recorder in user_settings.additional_recorders %}
+                                <option value="{{ recorder }}">{{ recorder }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notes">Notes:</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="use_custom_time_potty"
+                                name="use_custom_time" value="yes">
+                            <label class="form-check-label" for="use_custom_time_potty">Use custom time</label>
+                        </div>
+
+                        <div class="form-group" id="custom_time_group_potty" style="display: none;">
+                            <label for="custom_time">Custom Time:</label>
+                            <input type="datetime-local" class="form-control" id="custom_time" name="custom_time">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Defecation Modal -->
+    <div class="modal fade" id="poopModal" tabindex="-1" role="dialog" aria-labelledby="poopModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="poopModalLabel">Record Defecation</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('add_potty_event') }}" method="post">
+                        <input type="hidden" name="event_type" value="D">
+
+                        <div class="form-group">
+                            <label>Potty Status:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="potty_status" id="on_cue_poop"
+                                    value="on_cue" checked>
+                                <label class="form-check-label" for="on_cue_poop">On Cue</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="potty_status" id="accident_poop"
+                                    value="accident">
+                                <label class="form-check-label" for="accident_poop">Accident</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recorded_by">Recorded By:</label>
+                            <select class="form-control" id="recorded_by" name="recorded_by">
+                                <option value="{{ user_settings.default_recorder }}">{{ user_settings.default_recorder
+                                    }}</option>
+                                {% for recorder in user_settings.additional_recorders %}
+                                <option value="{{ recorder }}">{{ recorder }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notes">Notes:</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="use_custom_time_poop"
+                                name="use_custom_time" value="yes">
+                            <label class="form-check-label" for="use_custom_time_poop">Use custom time</label>
+                        </div>
+
+                        <div class="form-group" id="custom_time_group_poop" style="display: none;">
+                            <label for="custom_time">Custom Time:</label>
+                            <input type="datetime-local" class="form-control" id="custom_time" name="custom_time">
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-block">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Food Modal -->
+    <div class="modal fade" id="foodModal" tabindex="-1" role="dialog" aria-labelledby="foodModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title" id="foodModalLabel">Record Food</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('add_food_event') }}" method="post">
+                        <div class="form-group">
+                            <label for="amount">Amount (cups):</label>
+                            <input type="number" step="0.1" class="form-control" id="amount" name="amount"
+                                value="{{ user_settings.food.amount }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="food_type">Food Type:</label>
+                            <input type="text" class="form-control" id="food_type" name="food_type"
+                                value="{{ user_settings.food.type }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recorded_by">Recorded By:</label>
+                            <select class="form-control" id="recorded_by" name="recorded_by">
+                                <option value="{{ user_settings.default_recorder }}">{{ user_settings.default_recorder
+                                    }}</option>
+                                {% for recorder in user_settings.additional_recorders %}
+                                <option value="{{ recorder }}">{{ recorder }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notes">Notes:</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="use_custom_time_food"
+                                name="use_custom_time" value="yes">
+                            <label class="form-check-label" for="use_custom_time_food">Use custom time</label>
+                        </div>
+
+                        <div class="form-group" id="custom_time_group_food" style="display: none;">
+                            <label for="custom_time">Custom Time:</label>
+                            <input type="datetime-local" class="form-control" id="custom_time" name="custom_time">
+                        </div>
+
+                        <button type="submit" class="btn btn-warning btn-block">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sleep Modal -->
+    <div class="modal fade" id="sleepModal" tabindex="-1" role="dialog" aria-labelledby="sleepModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="sleepModalLabel">Record Sleep</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <form action="{{ url_for('add_sleep_event') }}" method="post">
+                                <input type="hidden" name="sleep_type" value="sleep">
+                                <input type="hidden" name="recorded_by" value="{{ user_settings.default_recorder }}">
+                                <button type="submit" class="btn btn-primary btn-block btn-lg">
+                                    <i class="fas fa-bed mr-2"></i> Bedtime
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-6">
+                            <form action="{{ url_for('add_sleep_event') }}" method="post">
+                                <input type="hidden" name="sleep_type" value="wake">
+                                <input type="hidden" name="recorded_by" value="{{ user_settings.default_recorder }}">
+                                <button type="submit" class="btn btn-warning btn-block btn-lg">
+                                    <i class="fas fa-sun mr-2"></i> Wake Up
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h6 class="text-muted mb-3">Manual Entry</h6>
+                    <form action="{{ url_for('add_sleep_event') }}" method="post">
+                        <div class="form-group">
+                            <label>Sleep Type:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="sleep_type" id="sleep_sleep"
+                                    value="sleep" checked>
+                                <label class="form-check-label" for="sleep_sleep">Bedtime</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="sleep_type" id="sleep_wake"
+                                    value="wake">
+                                <label class="form-check-label" for="sleep_wake">Wake Up</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recorded_by">Recorded By:</label>
+                            <select class="form-control" id="recorded_by" name="recorded_by">
+                                <option value="{{ user_settings.default_recorder }}">{{ user_settings.default_recorder
+                                    }}</option>
+                                {% for recorder in user_settings.additional_recorders %}
+                                <option value="{{ recorder }}">{{ recorder }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notes">Notes:</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="use_custom_time_sleep"
+                                name="use_custom_time" value="yes">
+                            <label class="form-check-label" for="use_custom_time_sleep">Use custom time</label>
+                        </div>
+
+                        <div class="form-group" id="custom_time_group_sleep" style="display: none;">
+                            <label for="custom_time">Custom Time:</label>
+                            <input type="datetime-local" class="form-control" id="custom_time" name="custom_time">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Walk Modal -->
+    <div class="modal fade" id="walkModal" tabindex="-1" role="dialog" aria-labelledby="walkModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="walkModalLabel">Record Walk</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <form action="{{ url_for('add_walk_event') }}" method="post">
+                                <input type="hidden" name="walk_type" value="start">
+                                <input type="hidden" name="recorded_by" value="{{ user_settings.default_recorder }}">
+                                <button type="submit" class="btn btn-success btn-block btn-lg">
+                                    <i class="fas fa-play-circle mr-2"></i> Start Walk
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-6">
+                            <form action="{{ url_for('add_walk_event') }}" method="post">
+                                <input type="hidden" name="walk_type" value="end">
+                                <input type="hidden" name="recorded_by" value="{{ user_settings.default_recorder }}">
+                                <button type="submit" class="btn btn-danger btn-block btn-lg">
+                                    <i class="fas fa-stop-circle mr-2"></i> End Walk
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h6 class="text-muted mb-3">Manual Entry</h6>
+                    <form action="{{ url_for('add_walk_event') }}" method="post">
+                        <div class="form-group">
+                            <label>Walk Type:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="walk_type" id="walk_start"
+                                    value="start" checked>
+                                <label class="form-check-label" for="walk_start">Start</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="walk_type" id="walk_end" value="end">
+                                <label class="form-check-label" for="walk_end">End</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recorded_by">Recorded By:</label>
+                            <select class="form-control" id="recorded_by" name="recorded_by">
+                                <option value="{{ user_settings.default_recorder }}">{{ user_settings.default_recorder
+                                    }}</option>
+                                {% for recorder in user_settings.additional_recorders %}
+                                <option value="{{ recorder }}">{{ recorder }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notes">Notes:</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="use_custom_time_walk"
+                                name="use_custom_time" value="yes">
+                            <label class="form-check-label" for="use_custom_time_walk">Use custom time</label>
+                        </div>
+
+                        <div class="form-group" id="custom_time_group_walk" style="display: none;">
+                            <label for="custom_time">Custom Time:</label>
+                            <input type="datetime-local" class="form-control" id="custom_time" name="custom_time">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Potty custom time toggle
+        const pottyCheckbox = document.getElementById('use_custom_time_potty');
+        const pottyTimeGroup = document.getElementById('custom_time_group_potty');
+
+        if (pottyCheckbox && pottyTimeGroup) {
+            pottyCheckbox.addEventListener('change', function () {
+                pottyTimeGroup.style.display = this.checked ? 'block' : 'none';
+            });
+        }
+
+        // Poop custom time toggle
+        const poopCheckbox = document.getElementById('use_custom_time_poop');
+        const poopTimeGroup = document.getElementById('custom_time_group_poop');
+
+        if (poopCheckbox && poopTimeGroup) {
+            poopCheckbox.addEventListener('change', function () {
+                poopTimeGroup.style.display = this.checked ? 'block' : 'none';
+            });
+        }
+
+        // Food custom time toggle
+        const foodCheckbox = document.getElementById('use_custom_time_food');
+        const foodTimeGroup = document.getElementById('custom_time_group_food');
+
+        if (foodCheckbox && foodTimeGroup) {
+            foodCheckbox.addEventListener('change', function () {
+                foodTimeGroup.style.display = this.checked ? 'block' : 'none';
+            });
+        }
+
+        // Sleep custom time toggle
+        const sleepCheckbox = document.getElementById('use_custom_time_sleep');
+        const sleepTimeGroup = document.getElementById('custom_time_group_sleep');
+
+        if (sleepCheckbox && sleepTimeGroup) {
+            sleepCheckbox.addEventListener('change', function () {
+                sleepTimeGroup.style.display = this.checked ? 'block' : 'none';
+            });
+        }
+
+        // Walk custom time toggle
+        const walkCheckbox = document.getElementById('use_custom_time_walk');
+        const walkTimeGroup = document.getElementById('custom_time_group_walk');
+
+        if (walkCheckbox && walkTimeGroup) {
+            walkCheckbox.addEventListener('change', function () {
+                walkTimeGroup.style.display = this.checked ? 'block' : 'none';
+            });
+        }
+    });
+</script>
+{% endblock %}

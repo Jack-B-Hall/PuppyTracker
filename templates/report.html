@@ -1,0 +1,375 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1 class="mb-4">Reports</h1>
+  
+  <!-- Date filter -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <form method="get" class="form-inline">
+        <div class="form-group mr-3">
+          <label for="start_date" class="mr-2">Start Date:</label>
+          <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date.strftime('%Y-%m-%d') }}">
+        </div>
+        <div class="form-group mr-3">
+          <label for="end_date" class="mr-2">End Date:</label>
+          <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date.strftime('%Y-%m-%d') }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Charts: Row 1 -->
+  <div class="row mb-4">
+    {% if 'daily_events' in plots %}
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Daily Potty Events</h5>
+        </div>
+        <div class="card-body">
+          <div id="daily_events"></div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    
+    {% if 'combined_rates' in plots %}
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Success vs. Accident Rates</h5>
+        </div>
+        <div class="card-body">
+          <div id="combined_rates"></div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  
+  <!-- Charts: Row 2 -->
+  <div class="row mb-4">
+    {% if 'hourly_events' in plots %}
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Events by Hour of Day</h5>
+        </div>
+        <div class="card-body">
+          <div id="hourly_events"></div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    
+    {% if 'potty_intervals' in plots %}
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Time Between Potty Events</h5>
+        </div>
+        <div class="card-body">
+          <div id="potty_intervals"></div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  
+  <!-- Charts: Row 3 -->
+  <div class="row mb-4">
+    {% if 'walk_duration' in plots %}
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Daily Walking Time</h5>
+        </div>
+        <div class="card-body">
+          <div id="walk_duration"></div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    
+    {% if 'walk_day_patterns' in plots %}
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Walking Patterns by Day</h5>
+        </div>
+        <div class="card-body">
+          <div id="walk_day_patterns"></div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  
+  <!-- Individual Rate Charts (toggleable) -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <button class="btn btn-outline-primary mb-3" type="button" data-toggle="collapse" data-target="#detailedCharts" aria-expanded="false" aria-controls="detailedCharts">
+        Show Detailed Rate Charts
+      </button>
+      <div class="collapse" id="detailedCharts">
+        <div class="row">
+          {% if 'accident_rate' in plots %}
+          <div class="col-md-6 mb-4">
+            <div class="card">
+              <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Accident Rate Over Time</h5>
+              </div>
+              <div class="card-body">
+                <div id="accident_rate"></div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          
+          {% if 'success_rate' in plots %}
+          <div class="col-md-6 mb-4">
+            <div class="card">
+              <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Success Rate Over Time</h5>
+              </div>
+              <div class="card-body">
+                <div id="success_rate"></div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Combined Event Table -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">All Events</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Event</th>
+              <th>Recorded By</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for event in all_events %}
+            <tr class="{% if event.type == 'potty' %}table-info{% elif event.type == 'food' %}table-warning{% elif event.type == 'sleep' %}table-secondary{% elif event.type == 'walk' %}table-success{% endif %}">
+              <td>{{ event.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td>{{ event.display }}</td>
+              <td>{{ event.recorded_by }}</td>
+              <td>{{ event.notes }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Individual Event Tables (hidden behind tabs) -->
+  <div class="card">
+    <div class="card-header">
+      <ul class="nav nav-tabs card-header-tabs" id="event-tabs" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="potty-tab" data-toggle="tab" href="#potty" role="tab" aria-controls="potty" aria-selected="true">Potty Events</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="food-tab" data-toggle="tab" href="#food" role="tab" aria-controls="food" aria-selected="false">Food Events</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="sleep-tab" data-toggle="tab" href="#sleep" role="tab" aria-controls="sleep" aria-selected="false">Sleep Events</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="walk-tab" data-toggle="tab" href="#walk" role="tab" aria-controls="walk" aria-selected="false">Walk Events</a>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body">
+      <div class="tab-content" id="eventTabContent">
+        <div class="tab-pane fade show active" id="potty" role="tabpanel" aria-labelledby="potty-tab">
+          <h5 class="mb-3">Potty Events</h5>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Date & Time</th>
+                  <th>Type</th>
+                  <th>Accident</th>
+                  <th>On Cue</th>
+                  <th>Recorded By</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for event in potty_events %}
+                <tr>
+                  <td>{{ event.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                  <td>{% if event.event_type == 'U' %}Urination{% else %}Defecation{% endif %}</td>
+                  <td>{% if event.is_accident %}Yes{% else %}No{% endif %}</td>
+                  <td>{% if event.on_cue %}Yes{% else %}No{% endif %}</td>
+                  <td>{{ event.recorded_by }}</td>
+                  <td>{{ event.notes }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="food" role="tabpanel" aria-labelledby="food-tab">
+          <h5 class="mb-3">Food Events</h5>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Date & Time</th>
+                  <th>Amount</th>
+                  <th>Food Type</th>
+                  <th>Recorded By</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for event in food_events %}
+                <tr>
+                  <td>{{ event.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                  <td>{{ event.amount }}</td>
+                  <td>{{ event.food_type }}</td>
+                  <td>{{ event.recorded_by }}</td>
+                  <td>{{ event.notes }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="sleep" role="tabpanel" aria-labelledby="sleep-tab">
+          <h5 class="mb-3">Sleep Events</h5>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Sleep Time</th>
+                  <th>Wake Time</th>
+                  <th>Duration</th>
+                  <th>Recorded By</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for event in sleep_events %}
+                <tr>
+                  <td>{% if event.sleep_time %}{{ event.sleep_time.strftime('%Y-%m-%d %H:%M') }}{% endif %}</td>
+                  <td>{% if event.wake_time %}{{ event.wake_time.strftime('%Y-%m-%d %H:%M') }}{% endif %}</td>
+                  <td>
+                    {% if event.sleep_time and event.wake_time %}
+                      {% set duration = (event.wake_time - event.sleep_time).total_seconds() / 3600 %}
+                      {{ "%.1f"|format(duration) }} hours
+                    {% endif %}
+                  </td>
+                  <td>{{ event.recorded_by }}</td>
+                  <td>{{ event.notes }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="walk" role="tabpanel" aria-labelledby="walk-tab">
+          <h5 class="mb-3">Walk Events</h5>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Start Time</th>
+                  <th>End Time</th>
+                  <th>Duration (min)</th>
+                  <th>Recorded By</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for event in walk_events %}
+                <tr>
+                  <td>{{ event.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                  <td>{% if event.end_time %}{{ event.end_time.strftime('%Y-%m-%d %H:%M') }}{% endif %}</td>
+                  <td>{{ event.duration }}</td>
+                  <td>{{ event.recorded_by }}</td>
+                  <td>{{ event.notes }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Load Plotly and plot graphs -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+  {% if 'daily_events' in plots %}
+  var daily_events = {{ plots.daily_events | safe }};
+  Plotly.newPlot('daily_events', daily_events.data, daily_events.layout);
+  {% endif %}
+  
+  {% if 'accident_rate' in plots %}
+  var accident_rate = {{ plots.accident_rate | safe }};
+  Plotly.newPlot('accident_rate', accident_rate.data, accident_rate.layout);
+  {% endif %}
+  
+  {% if 'hourly_events' in plots %}
+  var hourly_events = {{ plots.hourly_events | safe }};
+  Plotly.newPlot('hourly_events', hourly_events.data, hourly_events.layout);
+  {% endif %}
+  
+  {% if 'success_rate' in plots %}
+  var success_rate = {{ plots.success_rate | safe }};
+  Plotly.newPlot('success_rate', success_rate.data, success_rate.layout);
+  {% endif %}
+  
+  {% if 'walk_duration' in plots %}
+  var walk_duration = {{ plots.walk_duration | safe }};
+  Plotly.newPlot('walk_duration', walk_duration.data, walk_duration.layout);
+  {% endif %}
+  
+  {% if 'combined_rates' in plots %}
+  var combined_rates = {{ plots.combined_rates | safe }};
+  Plotly.newPlot('combined_rates', combined_rates.data, combined_rates.layout);
+  {% endif %}
+  
+  {% if 'potty_intervals' in plots %}
+  var potty_intervals = {{ plots.potty_intervals | safe }};
+  Plotly.newPlot('potty_intervals', potty_intervals.data, potty_intervals.layout);
+  {% endif %}
+  
+  {% if 'walk_day_patterns' in plots %}
+  var walk_day_patterns = {{ plots.walk_day_patterns | safe }};
+  Plotly.newPlot('walk_day_patterns', walk_day_patterns.data, walk_day_patterns.layout);
+  {% endif %}
+  
+  // Responsive resize for all plots when window is resized
+  window.onresize = function() {
+    if (typeof daily_events !== 'undefined') Plotly.relayout('daily_events', {autosize: true});
+    if (typeof accident_rate !== 'undefined') Plotly.relayout('accident_rate', {autosize: true});
+    if (typeof hourly_events !== 'undefined') Plotly.relayout('hourly_events', {autosize: true});
+    if (typeof success_rate !== 'undefined') Plotly.relayout('success_rate', {autosize: true});
+    if (typeof walk_duration !== 'undefined') Plotly.relayout('walk_duration', {autosize: true});
+    if (typeof combined_rates !== 'undefined') Plotly.relayout('combined_rates', {autosize: true});
+    if (typeof potty_intervals !== 'undefined') Plotly.relayout('potty_intervals', {autosize: true});
+    if (typeof walk_day_patterns !== 'undefined') Plotly.relayout('walk_day_patterns', {autosize: true});
+  };
+</script>
+{% endblock %}
