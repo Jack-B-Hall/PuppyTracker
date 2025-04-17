@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mt-4">
-  <h1 class="mb-4">Potty Schedule Grid</h1>
+  <h1 class="mb-4">Puppy Schedule Grid</h1>
   
   <!-- Date filter -->
   <div class="card mb-4">
@@ -47,19 +47,25 @@
               <td>{{ date.strftime('%d/%m') }}</td>
               {% for hour in range(6, 23) %}
               <td>
-                {% for code in grid_data[date][hour] %}
-                  {% if code.startswith('U') %}
-                    <span class="badge badge-primary">U
-                      {% if 'A' in code %}<sup>A</sup>{% endif %}
-                      {% if 'C' in code %}<sup>C</sup>{% endif %}
-                    </span>
-                  {% elif code.startswith('D') %}
-                    <span class="badge badge-success">D
-                      {% if 'A' in code %}<sup>A</sup>{% endif %}
-                      {% if 'C' in code %}<sup>C</sup>{% endif %}
-                    </span>
-                  {% endif %}
-                {% endfor %}
+              {% for code in grid_data[date][hour] %}
+                {% if code.startswith('U') %}
+                  <span class="badge badge-primary">U
+                    {% if 'A' in code %}<sup>A</sup>{% endif %}
+                    {% if 'C' in code %}<sup>C</sup>{% endif %}
+                  </span>
+                {% elif code.startswith('D') %}
+                  <span class="badge badge-success">D
+                    {% if 'A' in code %}<sup>A</sup>{% endif %}
+                    {% if 'C' in code %}<sup>C</sup>{% endif %}
+                  </span>
+                {% elif code == 'W' %}
+                  <span class="badge badge-info">W</span>
+                {% elif code == 'F' %}
+                  <span class="badge badge-warning">F</span>
+                {% elif code == 'S' %}
+                  <span class="badge badge-secondary">S</span>
+                {% endif %}
+              {% endfor %}
               </td>
               {% endfor %}
             </tr>
@@ -74,7 +80,10 @@
           <span class="badge badge-primary">U</span> = Urination &nbsp;
           <span class="badge badge-success">D</span> = Defecation &nbsp;
           <sup>A</sup> = Accident &nbsp;
-          <sup>C</sup> = On Cue
+          <sup>C</sup> = On Cue &nbsp;
+          <span class="badge badge-info">W</span> = Walk &nbsp;
+          <span class="badge badge-warning">F</span> = Food &nbsp;
+          <span class="badge badge-secondary">S</span> = Sleep
         </p>
       </div>
     </div>
