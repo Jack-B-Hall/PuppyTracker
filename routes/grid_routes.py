@@ -260,6 +260,7 @@ def register_grid_routes(app, db):
         header_row = ['Date']
         for hour in range(6, 23):
             header_row.append(f"{hour}:00")
+        header_row.append('Sleep')
         table_data.append(header_row)
         
         # Data rows
@@ -268,6 +269,12 @@ def register_grid_routes(app, db):
             for hour in range(6, 23):
                 cell_content = ', '.join(grid_data[date][hour]) if grid_data[date][hour] else ''
                 row.append(cell_content)
+            # Append daily sleep duration
+            sleep_mins = sleep_totals.get(date, 0)
+            h = sleep_mins // 60
+            m = sleep_mins % 60
+            sleep_str = f"{h}h {m}m" if m else f"{h}h"
+            row.append(sleep_str)
             table_data.append(row)
         
         # Create table

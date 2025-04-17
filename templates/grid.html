@@ -36,9 +36,10 @@
           <thead class="thead-light">
             <tr>
               <th>Date</th>
-              {% for hour in range(6, 23) %}
+            {% for hour in range(6, 23) %}
               <th>{{ hour }}:00</th>
-              {% endfor %}
+            {% endfor %}
+              <th>Sleep</th>
             </tr>
           </thead>
           <tbody>
@@ -68,6 +69,12 @@
               {% endfor %}
               </td>
               {% endfor %}
+              <td>
+                {% set total_mins = sleep_totals[date] %}
+                {% set h = total_mins // 60 %}
+                {% set m = total_mins % 60 %}
+                {{ h }}h{% if m > 0 %} {{ m }}m{% endif %}
+              </td>
             </tr>
             {% endfor %}
           </tbody>
